@@ -71,7 +71,7 @@ def generate_response(query, retrieved_chunks):
     return response.text
 
 # Main workflow
-pdf_path = '/content/ISSS information.pdf'
+pdf_path = 'ISSS information.pdf'
 text = extract_text_from_pdf(pdf_path)
 chunks = preprocess_text(text)
 index, chunks = create_faiss_index(chunks)
