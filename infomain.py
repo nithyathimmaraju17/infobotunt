@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Retrieve the API key from environment variables
 api_key = os.getenv("GOOGLE_GENAI_API_KEY")
 
 # Configure API Key directly
