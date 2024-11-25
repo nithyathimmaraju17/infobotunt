@@ -4,9 +4,14 @@ import PyPDF2
 from sentence_transformers import SentenceTransformer
 import faiss
 import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Retrieve the API key from environment variables
+api_key = os.getenv("GOOGLE_GENAI_API_KEY")
 
 # Configure API Key directly
-api_key = "AIzaSyD7QDAIEhDyd_AuuO7iGOiFg6cq7SHTd34"
 genai.configure(api_key=api_key)
 
 # Create the model configuration
