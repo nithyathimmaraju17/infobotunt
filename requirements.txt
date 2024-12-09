@@ -1,6 +1,6 @@
-google-generativeai
-PyPDF2
-sentence-transformers
-faiss-cpu
-streamlit
-python-dotenv
+streamlit==1.25.0
+sentence-transformers==2.2.2
+transformers==4.34.0
+PyPDF2==3.0.1
+faiss-cpu==1.7.4
+torch==2.1.0
