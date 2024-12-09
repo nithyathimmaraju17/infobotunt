@@ -1,14 +1,12 @@
 import os
-from flask import Flask, render_template, request
+import streamlit as st
 import PyPDF2
 from sentence_transformers import SentenceTransformer
 import faiss
 from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 
-app = Flask(__name__)
-
 # Load Hugging Face QA model
-model_name = "google/flan-t5-large" 
+model_name = "google/flan-t5-large"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 qa_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 qa_pipeline = pipeline("text2text-generation", model=qa_model, tokenizer=tokenizer)
@@ -32,14 +30,14 @@ retriever_model = SentenceTransformer('all-MiniLM-L6-v2')
 # Convert chunks to embeddings and store in FAISS index
 def create_faiss_index(chunks):
     embeddings = retriever_model.encode(chunks, convert_to_tensor=True)
-    faiss_index = faiss.IndexFlatL2(embeddings.shape[1])  # Changed `index` to `faiss_index`
+    faiss_index = faiss.IndexFlatL2(embeddings.shape[1])
     faiss_index.add(embeddings.cpu().numpy())
     return faiss_index, chunks
 
 # Query the FAISS index
-def retrieve_relevant_chunks(query, faiss_index, chunks, top_k=5):  # Changed `index` to `faiss_index`
+def retrieve_relevant_chunks(query, faiss_index, chunks, top_k=5):
     query_embedding = retriever_model.encode([query], convert_to_tensor=True)
-    _, indices = faiss_index.search(query_embedding.cpu().numpy(), top_k)  # Changed `index` to `faiss_index`
+    _, indices = faiss_index.search(query_embedding.cpu().numpy(), top_k)
     return [chunks[i] for i in indices[0]]
 
 # Generate response using retrieved chunks via Hugging Face model
@@ -50,20 +48,21 @@ def generate_response(query, retrieved_chunks):
     return response
 
 # Initialize data
-pdf_path = 'ISSS information.pdf'  # Make sure this file is in the same directory
+pdf_path = 'ISSS information.pdf'  # Ensure this file is in the same directory
 text = extract_text_from_pdf(pdf_path)
 chunks = preprocess_text(text)
-faiss_index, chunks = create_faiss_index(chunks)  # Changed `index` to `faiss_index`
+faiss_index, chunks = create_faiss_index(chunks)
 
-# Flask routes
-@app.route("/", methods=["GET", "POST"])
-def index():
-    answer = ""
-    if request.method == "POST":
-        query = request.form["query"]
-        retrieved_chunks = retrieve_relevant_chunks(query, faiss_index, chunks)  # Changed `index` to `faiss_index`
-        answer = generate_response(query, retrieved_chunks)
-    return render_template("index.html", answer=answer)
+# Streamlit app
+st.title("PDF-based QA with FAISS and Hugging Face")
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Input query
+query = st.text_input("Enter your query:")
+
+# Process query and display results
+if query:
+    st.write("Searching for relevant information...")
+    retrieved_chunks = retrieve_relevant_chunks(query, faiss_index, chunks)
+    answer = generate_response(query, retrieved_chunks)
+    st.subheader("Answer:")
+    st.write(answer)
