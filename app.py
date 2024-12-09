@@ -54,7 +54,7 @@ chunks = preprocess_text(text)
 faiss_index, chunks = create_faiss_index(chunks)
 
 # Streamlit app
-st.title("PDF-based QA with FAISS and Hugging Face")
+st.title("AI Chat Assistant that answers questions related to UNT's ISSS ")
 
 # Input query
 query = st.text_input("Enter your query:")
